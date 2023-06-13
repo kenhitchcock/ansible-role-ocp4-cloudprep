@@ -1,0 +1,26 @@
+---
+
+- name: create a public zone
+  amazon.aws.route53_zone:
+    zone: "{{ cloudprep_baseDomain }}"
+    comment: "This is the domain that OpenShift will use."
+  
+- name: "Get zone id"
+  route53_zone:
+    zone: "{{ cloudprep_baseDomain }}"
+  register: AWSZONEINFO
+
+- name: "Get Route53 record information"
+  route53_info:
+    hosted_zone_method: details
+    query: hosted_zone
+    hosted_zone_id: "{{ AWSZONEINFO.zone_id }}"
+  register: HOSTZONEINFO
+
+- name: "Extract info"
+  debug:
+    msg: "Please update your domain providers DNS records with these name servers. {{ HOSTZONEINFO.DelegationSet }}"
+
+- name: "The NS records for {{ cloudprep_baseDomain }}."
+  ansible.builtin.debug:
+    msg: "{{ lookup('community.general.dig', '{{ cloudprep_baseDomain }}', qtype='NS', retry_servfail=true) }}"

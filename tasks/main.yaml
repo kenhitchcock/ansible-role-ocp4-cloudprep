@@ -1,0 +1,5 @@
+---
+
+- name: "Configure Bastion with Prereqs."
+  include_tasks: aws.yaml
+  when: cloudprep_cloud_platform == "aws"
